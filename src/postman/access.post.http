@@ -1,0 +1,10 @@
+### signUp
+
+POST http://localhost:3056/v1/api/shop/signup HTTP/1.1
+content-Type: application/json
+
+{
+    "name": "HL Shop",
+    "email": "hlong@gmail.com",
+    "password": "abc123"
+}

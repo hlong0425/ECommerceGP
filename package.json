@@ -20,8 +20,13 @@
   },
   "homepage": "https://github.com/hlong0425/ECommerceGP#readme",
   "dependencies": {
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.18.3",
+    "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
-    "express": "^4.18.2",
+    "express": "^4.16.3",
+    "jsonwebtoken": "^9.0.1",
+    "lodash": "^4.17.21",
     "mongoose": "^7.4.2",
     "morgan": "^1.10.0",
     "pg": "^8.11.2"

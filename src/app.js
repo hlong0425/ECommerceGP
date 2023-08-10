@@ -1,3 +1,4 @@
+import routes from './routes/index.js';
 import express from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
@@ -9,6 +10,12 @@ const app = express();
 app.use(morgan('dev'));
 app.use(helmet());
 app.use(compression());
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
 // init db
 import './dbs/init.mongodb.js';
@@ -16,5 +23,6 @@ import './dbs/init.mongodb.js';
 // checkOverLoad();
 
 // init routes
+app.use('/', routes);
 
 export default app;
