@@ -3,7 +3,7 @@ import JWT from 'jsonwebtoken';
 const createTokenPair = async ({ payload, publicKey, privateKey }) => {
   try {
     // access Token:
-    const accessToken = JWT.sign(payload, privateKey, {
+    const accessToken = JWT.sign(payload, publicKey, {
       expiresIn: '2 days',
     });
 

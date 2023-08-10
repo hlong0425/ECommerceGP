@@ -1,3 +1,5 @@
+'use strict';
+
 import { model, Schema } from 'mongoose'; // Erase if already required
 
 // 1. install "Mongo Snippers for Nodejs"
@@ -5,32 +7,28 @@ import { model, Schema } from 'mongoose'; // Erase if already required
 
 // Declare the Schema of the Mongo model
 
-const DOCUMENT_NAME = 'Key';
-const COLLECTION_NAME = 'Keys';
+const DOCUMENT_NAME = 'ApiKey';
+const COLLECTION_NAME = 'ApiKeys';
 
 var keyTokenSchema = new Schema(
   {
-    user: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: 'shop',
-    },
-    privateKey: {
+    key: {
       type: String,
       required: true,
     },
-    publicKey: {
-      type: String,
-      required: true,
+    status: {
+      type: Boolean,
+      default: true,
     },
-    refeshToken: {
-      type: Array,
-      default: [],
+    permissions: {
+      type: [String],
+      required: true,
+      enum: ['0000', '1111', '2222'],
     },
   },
   {
-    collection: COLLECTION_NAME,
     timestamps: true,
+    collection: COLLECTION_NAME,
   }
 );
 
