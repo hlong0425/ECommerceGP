@@ -25,4 +25,21 @@ import './dbs/init.mongodb.js';
 // init routes
 app.use('/', routes);
 
+// If don't have any router:
+app.use((req, res, next) => {
+  const error = new Error('Not found');
+  error.status = 404;
+  next();
+});
+
+// Catch all exception case:
+app.use((error, req, res, next) => {
+  const statusCode = error.status || 500;
+  return res.status(statusCode).json({
+    status: 'error',
+    code: statusCode,
+    message: error.message || 'Interal Server Error',
+  });
+});
+
 export default app;

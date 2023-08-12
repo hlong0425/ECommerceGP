@@ -25,27 +25,39 @@ const apiKey = async (req, res, next) => {
     req.objKey = objKey;
 
     return next();
-  } catch (error) {}
+  } catch (error) {
+    return next(error);
+  }
 };
 
 const permission = (permission) => {
+  try {
+    return (req, res, next) => {
+      if (!req.objKey.permissions) {
+        return res.status(403).json({
+          message: 'permission denied',
+        });
+      }
+
+      console.log('permission:: ', req.objKey.permissions);
+      const validPermission = req.objKey.permissions.includes(permission);
+      if (!validPermission) {
+        return res.status(403).json({
+          message: 'permission denied',
+        });
+      }
+
+      return next();
+    };
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const asyncHandler = (fn) => {
   return (req, res, next) => {
-    if (!req.objKey.permissions) {
-      return res.status(403).json({
-        message: 'permission denied',
-      });
-    }
-
-    console.log('permission:: ', req.objKey.permissions);
-    const validPermission = req.objKey.permissions.includes(permission);
-    if (!validPermission) {
-      return res.status(403).json({
-        message: 'permission denied',
-      });
-    }
-
-    return next();
+    fn(req, res, next).catch(next);
   };
 };
 
-export { apiKey, permission };
+export { apiKey, permission, asyncHandler };

@@ -4,7 +4,9 @@ import crypto from 'node:crypto';
 import KeyTokenService from './keyToken.service.js';
 import { createTokenPair } from '../auth/authUtils.js';
 import { getInfoData } from '../utils/index.js';
+import { BadRequestError } from '../core/error.response.js';
 
+import { findByEmail } from './shop.service.js';
 const RoleShop = {
   SHOP: 'SHOP',
   WRITER: 'WRITER',
@@ -13,24 +15,30 @@ const RoleShop = {
 };
 
 class AccessService {
+  /*
+    1. Check email in dbs.
+    2. match password
+    3. create AT vs RT and save
+    4. generate tokens
+    5. get data return login
+  */
+
+  static login = async ({ email, password, refrestToken = null }) => {
+    const foundShop = await findByEmail({ email })
+    if(!foundShop) throw new BadRequestError('Shop not registerd');
+
+    const match = bycrypt.compare(password, foundShop.password);
+    // if(!match) throw new 
+  };
+
   static signUp = async ({ name, email, password }) => {
     try {
       //step1: check email;
       const holderShop = await shopModel.findOne({ email }).lean();
       if (holderShop) {
-        return {
-          code: 'xxxx',
-          message: 'Shop already registerd',
-        };
+        throw new BadRequestError('Error: Shop already registerd');
       }
 
-      const passwordHash = await bycrypt.hash(password, 10);
-      const newShop = await shopModel.create({
-        name,
-        email,
-        password: passwordHash,
-        roles: [RoleShop.SHOP],
-      });
 
       if (newShop) {
         // created privateKey, publicKey
@@ -45,7 +53,7 @@ class AccessService {
         //     format: 'pem',
         //   },
         // });
-        
+
         const privateKey = crypto.randomBytes(64).toString('hex');
         const publicKey = crypto.randomBytes(64).toString('hex');
 
@@ -53,14 +61,11 @@ class AccessService {
         const storedKey = await KeyTokenService.createKeyToken({
           userId: newShop._id,
           publicKey: publicKey,
-          privateKey: privateKey
+          privateKey: privateKey,
         });
 
         if (!storedKey) {
-          return {
-            code: 'xxx',
-            message: 'storedKey error',
-          };
+          throw new BadRequestError('storedKey error');
         }
 
         // created token pair
@@ -77,7 +82,10 @@ class AccessService {
         return {
           code: 201,
           metadata: {
-            shop: getInfoData({fields: ['_id', 'name', 'email'], object: newShop}),
+            shop: getInfoData({
+              fields: ['_id', 'name', 'email'],
+              object: newShop,
+            }),
             tokens,
           },
         };
