@@ -23,10 +23,11 @@ var keyTokenSchema = new Schema(
       type: String,
       required: true,
     },
-    refeshToken: {
+    refreshTokenUsed: {
       type: Array,
       default: [],
     },
+    refreshToken: { type: String, required: true },
   },
   {
     collection: COLLECTION_NAME,

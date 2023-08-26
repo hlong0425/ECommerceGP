@@ -2,10 +2,21 @@
 
 POST http://localhost:3056/v1/api/shop/signup HTTP/1.1
 content-Type: application/json
-x-api-key: 'b57e2bba815cc916c1fdc757e4f402a9ebd921db9b2322c105559d29942d8665062869e49092656bf6a92a7e1175ea3bca76fdac9533b7687a582e787bdb25c4'
+x-api-key: 4b8ab302fe6fb2a17309cbd6255de7e2c7eb2b9a89780da942e6e9bd03377bd602a80c4091bd2a574636ef1164d91fc98879bb557b75e947e469b6758f1d3640
 
 {
     "name": "HL Shop",
-    "email": "hlong@gmail.com",
+    "email": "hlongzzzzzz@gmail.com",
     "password": "abc123"
 }
+
+### Login
+POST http://localhost:3056/v1/api/shop/login HTTP/1.1
+content-Type: application/json
+x-api-key: 4b8ab302fe6fb2a17309cbd6255de7e2c7eb2b9a89780da942e6e9bd03377bd602a80c4091bd2a574636ef1164d91fc98879bb557b75e947e469b6758f1d3640
+
+{
+    "email": "hlongzzzzzz@gmail.com",
+    "password": "abc123"
+}
+ 

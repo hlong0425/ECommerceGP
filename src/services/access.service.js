@@ -1,12 +1,13 @@
 import shopModel from '../models/shop.model.js';
 import bycrypt from 'bcrypt';
-import crypto from 'node:crypto';
+import crypto, { verify } from 'node:crypto';
 import KeyTokenService from './keyToken.service.js';
 import { createTokenPair } from '../auth/authUtils.js';
 import { getInfoData } from '../utils/index.js';
-import { BadRequestError } from '../core/error.response.js';
-
+import { AuthFailureError, BadRequestError, ForbiddenError } from '../core/error.response.js';
 import { findByEmail } from './shop.service.js';
+import { verifyJWT } from '../auth/authUtils.js';
+
 const RoleShop = {
   SHOP: 'SHOP',
   WRITER: 'WRITER',
@@ -15,20 +16,88 @@ const RoleShop = {
 };
 
 class AccessService {
-  /*
+  
+
+  /* check Token used */
+  static handlerRefeshToken = async (refreshToken) => {
+    const foundTokenUsed = await KeyTokenService.findByRefreshTokenUsed(refreshToken);
+    if(foundTokenUsed){
+      const jwt = await verifyJWT(refreshToken, foundTokenUsed.privateKey);
+      console.log({user: jwt.userId, email: jwt.email});
+
+      await KeyTokenService.deleteKeyById(jwt.userId);
+      throw new ForbiddenError('Something went wrong, please relogin');
+    }
+
+    const holderToken = await KeyTokenService.findByRefreshToken(refreshToken);
+    if (!holderToken) throw new AuthFailureError('Shop not registerd');
+    // verifyToken 
+    const newJWT = await verifyJWT(refreshToken, holderToken.privateKey);
+
+    const foundShop = await findByEmail({ email: newJWT.email });
+    if (!foundShop) throw new AuthFailureError('Shop not registerd');
+    
+    // create 1 cap:
+    const tokens = await createTokenPair({
+      payload: {
+        userId: newJWT.userId,
+        email: newJWT.email,
+      },
+      publicKey: holderToken.publicKey,
+      privateKey: holderToken.privateKey
+    });
+
+    //update token:
+    await holderToken.updateOne({
+      $set: { refreshToken: tokens.refreshToken },
+      $addToSet: {refeshTokenUsed: refreshToken }
+    });
+
+    return {
+        user: {
+          userId: newJWT.userId,
+          email: newJWT.email,
+        },
+        tokens        
+    }
+  }
+
+  static Logout = async ({ keyStore }) => {
+    return await KeyTokenService.removeKeyById(keyStore._id);
+  }
+
+  static login = async ({ email, password, refrestToken = null }) => {
+    /*
     1. Check email in dbs.
     2. match password
     3. create AT vs RT and save
     4. generate tokens
     5. get data return login
-  */
+   */
 
-  static login = async ({ email, password, refrestToken = null }) => {
-    const foundShop = await findByEmail({ email })
-    if(!foundShop) throw new BadRequestError('Shop not registerd');
+    const foundShop = await findByEmail({ email });
+    if (!foundShop) throw new BadRequestError('Shop not registerd');
 
     const match = bycrypt.compare(password, foundShop.password);
-    // if(!match) throw new 
+    if (!match) throw new AuthFailureError('Authentication Error');
+
+    const privateKey = crypto.randomBytes(64).toString('hex');
+    const publicKey = crypto.randomBytes(64).toString('hex');
+    const tokens = await createTokenPair({
+        payload: { userId: foundShop._id, email },
+        publicKey,
+        privateKey
+      });
+
+    await KeyTokenService.createKeyToken({
+      userId: foundShop._id,
+      publicKey, privateKey, refreshToken: tokens.refreshToken
+    });
+
+    return {
+      shop: getInfoData({fields: ['_id', 'name', 'email'], object: foundShop}),
+      tokens,
+    }
   };
 
   static signUp = async ({ name, email, password }) => {
@@ -39,6 +108,13 @@ class AccessService {
         throw new BadRequestError('Error: Shop already registerd');
       }
 
+      const passwordHash = await bycrypt.hash(password, 10);
+      const newShop = await shopModel.create({
+        name,
+        email,
+        password: passwordHash,
+        roles: [RoleShop.SHOP],
+      });
 
       if (newShop) {
         // created privateKey, publicKey
@@ -62,6 +138,7 @@ class AccessService {
           userId: newShop._id,
           publicKey: publicKey,
           privateKey: privateKey,
+          
         });
 
         if (!storedKey) {

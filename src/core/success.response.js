@@ -8,7 +8,7 @@ const ReasonStatusCode = {
   OK: 'Success',
 };
 
-class SuccessResponse {
+class SUCCESS {
   constructor({
     message,
     statusCode = StatusCode.OK,
@@ -25,23 +25,23 @@ class SuccessResponse {
   }
 }
 
-class OK extends SuccessResponse {
+class OK extends SUCCESS {
   constructor({ message, metadata }) {
     super({ message, metadata });
   }
 }
 
-class CREATED extends SuccessResponse {
+class CREATED extends SUCCESS {
   constructor({
     message,
     metadata,
     statusCode = StatusCode.CREATED,
     reasonStatusCode = ReasonStatusCode.CREATED,
-    option = {},
+    options = {},
   }) {
     super({ message, metadata, statusCode, reasonStatusCode });
-    this.option = option;
+    this.options = options;
   }
 }
 
-export { OK, CREATED };
+export { OK, CREATED, SUCCESS };
