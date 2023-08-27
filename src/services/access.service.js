@@ -62,6 +62,42 @@ class AccessService {
     }
   }
 
+  static handlerRefeshTokenV2 = async ({ 
+    user,
+    refreshToken,
+    keyStore
+  }) => {
+    const { userId, email } = user;
+    if (keyStore.refreshTokenUsed.includes(refreshToken)){
+      await KeyTokenService.deleteKeyById(userId);
+      throw new Error("Something went wrong happend !! Please registerd");
+    }
+
+    if (keyStore.refreshToken !== refreshToken) throw new AuthFailureError('Shop not registerd');
+
+    const foundShop = await findByEmail({ email });
+    if (!foundShop) {
+      throw new AuthFailureError("Shop not registerd")
+    } 
+    
+    const tokens = await createTokenPair({
+      payload: { userId, email }, 
+      publicKey: keyStore.publicKey, 
+      privateKey: keyStore.privateKey
+    });
+
+    await KeyTokenService.updateTokens({
+      keyId: keyStore._id,
+      refreshToken: tokens.refreshToken,
+      refreshTokenUsed: refreshToken,
+    })
+
+    return { user, tokens }
+  }
+
+
+
+
   static Logout = async ({ keyStore }) => {
     return await KeyTokenService.removeKeyById(keyStore._id);
   }
