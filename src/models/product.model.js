@@ -21,6 +21,7 @@ const clothingSchema = new Schema({
     brand: { type: String, require: true },
     size: { type: String },
     material: { type: String },
+    product_shop: { type: Schema.Types.String },
 }, {
     collection: 'clothes',
     timestamps: true
@@ -29,7 +30,9 @@ const clothingSchema = new Schema({
 const electronicSchema = new Schema({
     manufacture: { type: String, require: true },
     size: { type: String },
-    material: { type: String }
+    material: { type: String },
+    product_shop: { type: Schema.Types.String },
+
 }, {
     collection: 'electronics',
     timestamps: true

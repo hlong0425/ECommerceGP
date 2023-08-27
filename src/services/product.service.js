@@ -36,8 +36,10 @@ class Product {
         this.product_attributes = product_attributes;
     };
 
-    async createProduct() {
-        return await ProductSchema.product.create(this);
+    async createProduct(product_id) {
+        return await ProductSchema.product.create({
+            ...this, _id: product_id
+        });
     };
 }   
 
@@ -45,11 +47,14 @@ class Product {
 // Define sub-class for different product types Clothing
 class Clothing extends Product {
     async createProduct() {
-        const newClothing = await ProductSchema.clothing.create(this.product_attributes);
+        const newClothing = await ProductSchema.clothing.create({
+            ...this.product_attributes,
+            product_shop: this.product_shop,
+        });
         if (!newClothing) throw new BadRequestError('create new Clothing Error');
 
-        const newProduct = await super.createProduct();
-        if (!newClothing) throw new BadRequestError('create new Clothing Error');
+        const newProduct = await super.createProduct(newClothing._id);
+        if (!newProduct) throw new BadRequestError('create new Clothing Error');
 
         return newProduct;
     }
@@ -58,11 +63,14 @@ class Clothing extends Product {
 // Define sub-class for different product types Electronic
 class Electronics extends Product {
     async createProduct() {
-        const newClothing = await ProductSchema.electronics.create(this.product_attributes);
-        if (!newClothing) throw new BadRequestError('create new Electronics Error');
+        const newElectronics = await ProductSchema.electronics.create({
+            ...this.product_attributes,
+            product_shop: this.product_shop,
+        });
+        if (!newElectronics) throw new BadRequestError('create new Electronics Error');
 
-        const newProduct = await super.createProduct();
-        if (!newClothing) throw new BadRequestError('create new Clothing Error');
+        const newProduct = await super.createProduct(newElectronics._id);
+        if (!newProduct) throw new BadRequestError('create new Clothing Error');
 
         return newProduct;
     }
