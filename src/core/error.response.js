@@ -21,8 +21,8 @@ class ConfictRequestError extends ErrorResponse {
 
 class BadRequestError extends ErrorResponse {
   constructor(
-    message = ReasonPhrases.FORBIDDEN,
-    status = StatusCode.FORBIDDEN
+    message = ReasonPhrases.BAD_REQUEST,
+    status = StatusCode.BAD_REQUEST
   ) {
     super(message, status);
   }

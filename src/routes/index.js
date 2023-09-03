@@ -11,7 +11,7 @@ router.use(apiKey);
 // check permission: 0000 => full permission CRUD
 router.use(permission('0000'));
 
-router.use('/v1/api', access);
 router.use('/v1/api/product', product);
+router.use('/v1/api', access);
 
 export default router;
