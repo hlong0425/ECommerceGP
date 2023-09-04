@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 import productModel from '../../models/product.model.js'; 
 import { BadRequestError } from '../../core/error.response.js';
+import { getSelectData, unSelectData } from '../../utils/index.js';
 
 const findAllDraftsForShop = async({ query, limit, skip }) => {
     return await queryProduct({ query, limit, skip })
@@ -68,10 +69,30 @@ const searchProductByUser = async ({ keySearch }) => {
         .lean()
 };
 
+const findAllProducts = async({ limit, sort, pageNo , select, filter }) => {
+    const skip = ( pageNo - 1 ) * limit;
+    const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 } // -1: Highest values first
+    const products = await productModel.product
+        .find(filter)
+        .sort(sortBy)
+        .skip(skip)
+        .limit()
+        .select(getSelectData(select))
+        .lean();
+
+    return products;    
+}
+
+const findProduct = async({ product_id, unSelect = [] }) => {
+    return await productModel.product.findById(product_id).select(unSelectData(unSelect));
+};
+
 export {
     findAllDraftsForShop,
     publishProductByShop,
     findAllPublishForShop,
     unPublishProductByShop,
-    searchProductByUser
+    searchProductByUser,
+    findAllProducts,
+    findProduct
 }

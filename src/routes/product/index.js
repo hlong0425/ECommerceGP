@@ -5,13 +5,18 @@ import { authentication } from '../../auth/authUtils.js';
 
 const router = express.Router();
 
-//authentication
+router.get('/search/:keySearch', asyncHandler(productController.getListSearchProduct));
+router.get('', asyncHandler(productController.findAllProducts));
+router.get('/:id', asyncHandler(productController.findProductById));
+
+/**
+ *  AUTHENTICATION (Routers need authentication behind). 
+ */
 router.use(authentication);
 
 //GET
 router.get('/drafts/all', asyncHandler(productController.findAllDraftForShop));
 router.get('/published/all', asyncHandler(productController.findAllPublishForShop));
-router.get('/search/:keySearch', asyncHandler(productController.getListSearchProduct));
 
 
 //POST
@@ -22,8 +27,6 @@ router.post('', asyncHandler(productController.createProduct));
 router.put('/publish/:id', asyncHandler(productController.publishProductByShop)); 
 router.put('/unpublish/:id', asyncHandler(productController.unPublishProductByShop)); 
 
-
-
-
+router.patch('/:id', asyncHandler(productController.updateProduct)); 
 
 export default router;
