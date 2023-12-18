@@ -174,7 +174,6 @@ class AccessService {
           userId: newShop._id,
           publicKey: publicKey,
           privateKey: privateKey,
-          
         });
 
         if (!storedKey) {

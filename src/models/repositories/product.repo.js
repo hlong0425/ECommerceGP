@@ -76,7 +76,7 @@ const findAllProducts = async({ limit, sort, pageNo , select, filter }) => {
         .find(filter)
         .sort(sortBy)
         .skip(skip)
-        .limit()
+        .limit(limit)
         .select(getSelectData(select))
         .lean();
 

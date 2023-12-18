@@ -1,4 +1,7 @@
- import _ from 'lodash';
+import _ from 'lodash';
+import { Types } from 'mongoose';
+
+const toObjectId = (id) => Types.ObjectId(id); 
 
 const getInfoData = ({fields = [], object = {}}) => {
     return _.pick(object, fields);
@@ -12,7 +15,6 @@ const unSelectData = (select = []) => {
     return Object.fromEntries(select.map(s => [s, 0]));
 };
 
-
 const removeUndefinedObject = (obj) => {
     Object.keys(obj).forEach(k => {
         if(!obj[k]){
@@ -20,6 +22,8 @@ const removeUndefinedObject = (obj) => {
         }
     })
 }
+
+const convertToMongoObjectIdMongodb = id => Types.ObjectId(id);
 
 /// Cách 1:
 

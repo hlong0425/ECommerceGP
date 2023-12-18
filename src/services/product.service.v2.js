@@ -10,6 +10,8 @@ import {
     findProduct
 } from '../models/repositories/product.repo.js';
 
+import { insertInventory } from '../models/repositories/inventory.repo.js';
+
 import { removeUndefinedObject, updateNestedObjectParser } from '../utils/index.js';
 
 import productModel from '../models/product.model.js';
@@ -46,9 +48,17 @@ class Product {
     };
 
     async createProduct(product_id) {
-        return await ProductModel.product.create({
+        const newProduct =  await ProductModel.product.create({
             ...this, _id: product_id
         });
+
+        await insertInventory({
+            productId: newProduct._id,
+            shopId: this.product_shop,
+            stock: this.product_quantity
+        });
+
+        return newProduct;
     };
 
     async updateProduct(product_id, body){
