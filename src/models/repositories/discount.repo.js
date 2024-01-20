@@ -1,5 +1,4 @@
 import { getSelectData, unSelectData } from '../../utils/index.js';
-
 const findAllDiscountCodesUnselect = async ({
     limit = 50,
     page = 1,
@@ -39,15 +38,12 @@ const findAllDiscountCodesSelect = async ({
 const checkDiscountExists = async ({
     model, filter
 }) => {
-    const foundDiscount = await model.findOne({
-        discount_code: code,
-        discount_shopId: toString(shopId)
-    }).lean();
-
-    return foundDiscount;
+    return await model.findOne(filter).lean();
 };
 
 export {
-    checkDiscountExists, findAllDiscountCodesSelect,
+    checkDiscountExists,
+    findAllDiscountCodesSelect,
     findAllDiscountCodesUnselect
 };
+

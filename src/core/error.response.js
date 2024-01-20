@@ -29,21 +29,21 @@ class BadRequestError extends ErrorResponse {
 }
 
 class AuthFailureError extends ErrorResponse {
-  constructor(message = ReasonPhrases.UNAUTHORIZED, status = StatusCode.UNAUTHORIZED){
+  constructor(message = ReasonPhrases.UNAUTHORIZED, status = StatusCode.UNAUTHORIZED) {
     super(message, status);
   }
 }
 
 class NotFoundError extends ErrorResponse {
-  constructor(message = ReasonPhrases.NOT_FOUND, status = StatusCode.NOT_FOUND){
+  constructor(message = ReasonPhrases.NOT_FOUND, status = StatusCode.NOT_FOUND) {
     super(message, status);
   };
 }
 
 class ForbiddenError extends ErrorResponse {
-  constructor(message = ReasonPhrases.FORBIDDEN, status = StatusCode.FORBIDDEN){
+  constructor(message = ReasonPhrases.FORBIDDEN, status = StatusCode.FORBIDDEN) {
     super(message, status);
   };
 }
 
-export { ConfictRequestError, BadRequestError, AuthFailureError, NotFoundError, ForbiddenError };
+export { AuthFailureError, BadRequestError, ConfictRequestError, ForbiddenError, NotFoundError };

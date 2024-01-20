@@ -44,4 +44,4 @@ class CREATED extends SUCCESS {
   }
 }
 
-export { OK, CREATED, SUCCESS };
+export { CREATED, OK, SUCCESS };

@@ -26,7 +26,7 @@ class DiscountService {
     } = payload
 
     // kiem tra
-    if (new Date() < new Date(start_date) || new Date() > new Date(end_date)) {
+    if (new Date() > new Date(start_date) || new Date(start_date) > new Date(end_date)) {
       throw new BadRequestError('Discount code has expired')
     }
 
@@ -46,6 +46,7 @@ class DiscountService {
       discount_description: description,
       discount_type: type,
       discount_value: value,
+      discount_max_value: max_value,
       discount_code: code,
       discount_start_date: new Date(start_date),
       discount_end_date: new Date(end_date),
@@ -58,6 +59,8 @@ class DiscountService {
       discount_applies_to: applies_to,
       discount_product_ids: applies_to === "all" ? [] : product_ids,
     })
+
+    return newDiscount;
   };
 
   static async updateDiscount() {
@@ -65,13 +68,15 @@ class DiscountService {
   }
 
   static async getAllDiscountsWithProducts({
-    code, shopId, userId, page, limit
+    code, shopId, page, limit
   }) {
     // create index for discount_code
     const foundDiscount = await discountModel.findOne({
       discount_code: code,
       discount_shopId: toObjectId(shopId),
     }).lean()
+
+    console.log('foundDiscount', foundDiscount);
 
     if (!foundDiscount || !foundDiscount.discount_is_active) {
       throw new NotFoundError('discount not exists');
@@ -125,8 +130,27 @@ class DiscountService {
     return discounts;
   }
 
+  /**
+   * Apply Discount Code:
+   * products = [
+   *   { 
+   *      productId,
+   *      shopId,
+   *      quantity,
+   *      name,
+   *      price
+   *   },
+   *   { 
+   *      productId,
+   *      shopId,
+   *      quantity,
+   *      name,
+   *      price
+   *    }
+   * ]
+   */
   static async getDiscountAmount({
-    codeId, userId, shopId, products
+    code, userId, shopId, products
   }) {
     const foundDiscount = await checkDiscountExists({
       model: discountModel,
@@ -142,6 +166,11 @@ class DiscountService {
     const {
       discount_is_active,
       discount_max_uses,
+      discount_min_order_value,
+      discount_max_per_user,
+      discount_users_used,
+      discount_value,
+      discount_type,
     } = foundDiscount;
 
     if (!discount_is_active) {
@@ -151,6 +180,61 @@ class DiscountService {
     if (!discount_max_uses) {
       throw new NotFoundError("discount are out of range");
     }
+
+    let totalOrder = products.reduce((acc, product) => {
+      return acc + (product.price)
+    }, 0)
+
+    if (discount_min_order_value > 0) {
+      // get total:
+      if (totalOrder < discount_min_order_value) {
+        throw new NotFoundError(`min order value is ${discount_min_order_value}`);
+      }
+    }
+
+    if (discount_max_per_user > 0) {
+      const currentDiscountUsed = await discount_users_used.find(user => user.id === userId);
+      if (currentDiscountUsed.length >= discount_max_per_user) throw new BadRequestError("has exceeded the number of discount uses.")
+    }
+
+    const amount = discount_type === "fixed_amount" ? discount_value : totalOrder * (discount_value / 100);
+
+    return {
+      totalOrder, // total order prices
+      discount: amount, // price will be discount
+      totalPrice: totalOrder - amount // total prices after discount
+    }
+  }
+
+  static async deleteDiscount({ shopId, codeId }) {
+    const deleted = discountModel.findOneAndDelete({
+      discount_code: codeId,
+      discount_shopId: toObjectId(shopId)
+    })
+
+    return deleted;
+  }
+
+  static async cancelDiscountCode({ codeId, shopId, userId }) {
+    const foundDiscount = await checkDiscountExists({
+      model: discountModel,
+      filter: {
+        discount_code: codeId,
+        discount_shopId: toObjectId(shopId)
+      }
+    })
+
+    const result = await discount.findByIdAndUpdate(foundDiscount._id, {
+      $pull: {
+        discount_users_used: userId
+      },
+      $inc: {
+        discount_max_uses: -1,
+        discount_uses_count: -1
+      }
+    })
+
+    return result;
   }
 }
 

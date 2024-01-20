@@ -1,7 +1,9 @@
 import express from 'express';
-import access from './access/index.js';
 import { apiKey, permission } from '../auth/checkAuth.js';
-import product from './product/index.js'
+import access from './access/index.js';
+import cart from './cart/index.js';
+import discount from './discount/index.js';
+import product from './product/index.js';
 
 const router = express.Router();
 
@@ -11,7 +13,10 @@ router.use(apiKey);
 // check permission: 0000 => full permission CRUD
 router.use(permission('0000'));
 
-router.use('/v1/api/product', product);
 router.use('/v1/api', access);
+
+router.use('/v1/api/product', product);
+router.use('/v1/api', discount);
+router.use('/v1/api/cart', cart);
 
 export default router;

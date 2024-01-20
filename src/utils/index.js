@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import { Types } from 'mongoose';
 
-const toObjectId = (id) => Types.ObjectId(id); 
+const toObjectId = (id) => new Types.ObjectId(id);
 
-const getInfoData = ({fields = [], object = {}}) => {
+const getInfoData = ({ fields = [], object = {} }) => {
     return _.pick(object, fields);
 }
 
@@ -17,7 +17,7 @@ const unSelectData = (select = []) => {
 
 const removeUndefinedObject = (obj) => {
     Object.keys(obj).forEach(k => {
-        if(!obj[k]){
+        if (!obj[k]) {
             delete obj[k];
         }
     })
@@ -47,21 +47,19 @@ const convertToMongoObjectIdMongodb = id => Types.ObjectId(id);
 
 const updateNestedObjectParser = (obj, parent, result = {}) => {
     Object.keys(obj).forEach(k => {
-      const propName = parent ? `${parent}.${k}` : k
-      if (typeof obj[k] == 'object' && !Array.isArray(obj[k])) {
-        updateNestedObjectParser(obj[k], propName, result)
-      }
-      else {
-        result[propName] = obj[k]
-      }
+        const propName = parent ? `${parent}.${k}` : k
+        if (typeof obj[k] == 'object' && !Array.isArray(obj[k])) {
+            updateNestedObjectParser(obj[k], propName, result)
+        }
+        else {
+            result[propName] = obj[k]
+        }
     })
     return result
 }
 
 export {
     getInfoData,
-    getSelectData,
-    unSelectData,
-    removeUndefinedObject,
-    updateNestedObjectParser
-}
+    getSelectData, removeUndefinedObject, toObjectId, unSelectData, updateNestedObjectParser
+};
+
