@@ -193,7 +193,7 @@ class DiscountService {
     }
 
     if (discount_max_per_user > 0) {
-      const currentDiscountUsed = await discount_users_used.find(user => user.id === userId);
+      const currentDiscountUsed = await discount_users_used.find(user => user.id === userId) || [];
       if (currentDiscountUsed.length >= discount_max_per_user) throw new BadRequestError("has exceeded the number of discount uses.")
     }
 

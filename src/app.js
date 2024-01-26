@@ -1,9 +1,8 @@
-import routes from './routes/index.js';
-import express from 'express';
-import morgan from 'morgan';
-import helmet from 'helmet';
 import compression from 'compression';
-
+import express from 'express';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import routes from './routes/index.js';
 const app = express();
 
 // init middewares
@@ -16,6 +15,9 @@ app.use(
     extended: true,
   })
 );
+
+// ProductTest.purchaseProduct('product:001', 10);
+// InventoryTest.subcribe();
 
 // init db
 import './dbs/init.mongodb.js';

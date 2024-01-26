@@ -91,8 +91,29 @@ const getProductById = async (id) => {
     return await productModel.product.findOne({ _id: new Types.ObjectId(id) }).lean()
 }
 
+
+/**
+ * 
+ * @param {*} products 
+ * @returns {{price: number, quantity: number, productId: number}[]}
+ */
+const checkProductByServer = async (products) => {
+    return await Promise.all(
+        products.map(async product => {
+            const foundProduct = await getProductById(product.productId)
+            if (foundProduct) {
+                return {
+                    price: foundProduct.product_price,
+                    quantity: product.quantity,
+                    productId: product.productId
+                }
+            }
+        })
+    )
+}
+
 export {
-    findAllDraftsForShop,
+    checkProductByServer, findAllDraftsForShop,
     findAllProducts,
     findAllPublishForShop,
     findProduct, getProductById, publishProductByShop,
