@@ -2,6 +2,7 @@ import express from 'express';
 import { apiKey, permission } from '../auth/checkAuth.js';
 import access from './access/index.js';
 import cart from './cart/index.js';
+import comment from './comment/index.js';
 import discount from './discount/index.js';
 import inventory from './inventory/index.js';
 import order from './order/index.js';
@@ -22,5 +23,6 @@ router.use('/v1/api', discount);
 router.use('/v1/api/cart', cart);
 router.use('/v1/api/order', order);
 router.use('/v1/api/inventory', inventory);
+router.use('/v1/api/comment', comment);
 
 export default router;
