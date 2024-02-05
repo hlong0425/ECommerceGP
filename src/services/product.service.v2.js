@@ -11,8 +11,8 @@ import {
 } from '../models/repositories/product.repo.js';
 
 import { insertInventory } from '../models/repositories/inventory.repo.js';
-
 import { removeUndefinedObject, updateNestedObjectParser } from '../utils/index.js';
+import { pushNotificationToSystem } from './notification.service.js';
 
 import { Types } from 'mongoose';
 import productModel from '../models/product.model.js';
@@ -57,6 +57,16 @@ class Product {
             shopId: this.product_shop,
             stock: this.product_quantity
         });
+
+        pushNotificationToSystem({
+            type: 'SHOP-001',
+            receivedId: 1,
+            senderId: this.product_shop,
+            options: {
+                product_name: this.product_name,
+                shop_name: this.product_shop
+            }
+        }).then(rs => console.log(rs)).catch(() => console.log('Notification error'));
 
         return newProduct;
     };
