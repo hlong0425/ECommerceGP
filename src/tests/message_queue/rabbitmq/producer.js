@@ -2,7 +2,7 @@ import ampq from 'amqplib';
 
 const runProducer = async () => {
     try {
-        const connection = await ampq.connect('amqp://localhost');
+        const connection = await ampq.connect('amqp://guest:guest@localhost');
         const channel = await connection.createChannel();
 
         const queueName = 'test-topic';
